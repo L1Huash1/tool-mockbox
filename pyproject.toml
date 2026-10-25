@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tool-mockbox"
+version = "0.1.0"
+description = "Scripted local tool fixtures for testing agent calling code"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "L1Huash1"}]
+keywords = ["agents", "testing", "fixtures", "mock", "tools"]
+
+[project.scripts]
+tool-mockbox = "tool_mockbox.cli:main"
+
+[project.urls]
+Repository = "https://github.com/L1Huash1/tool-mockbox"
+Issues = "https://github.com/L1Huash1/tool-mockbox/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "tools": [
+    {"name": "lookup", "description": "One synthetic local lookup.", "steps": [
+      {"arguments": {"id": "demo"}, "status": "ok", "result": {"title": "Release checklist"}}
+    ]}
+  ]
+}
