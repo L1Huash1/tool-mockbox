@@ -1,6 +1,7 @@
 """Run a request fixture or serve the private loopback fixture protocol."""
 
 import argparse
+import asyncio
 import json
 from pathlib import Path
 import sys
@@ -37,9 +38,22 @@ def main(argv=None):
     serve.add_argument("scenario", type=Path)
     serve.add_argument("--port", type=int, default=8769, help="port 0 selects a free port")
     serve.add_argument("--no-wait", action="store_true")
+    mcp = sub.add_parser("mcp-serve", help="Serve optional MCP v2 fixtures over stdin/stdout")
+    mcp.add_argument("scenario", type=Path)
+    mcp.add_argument("--no-wait", action="store_true", help="skip fixture delays; async calls still yield once")
     args = parser.parse_args(argv)
     try:
         toolbox = MockToolbox.from_file(args.scenario, no_wait=args.no_wait)
+        if args.command == "mcp-serve":
+            from .mcp_adapter import MCPDependencyError, serve_stdio
+            try:
+                asyncio.run(serve_stdio(toolbox))
+            except MCPDependencyError as error:
+                print(f"tool-mockbox: {error}", file=sys.stderr)
+                return 2
+            except KeyboardInterrupt:
+                return 130
+            return 0
         if args.command == "serve":
             server = create_server(toolbox, port=args.port)
             print(f"tool-mockbox listening at http://127.0.0.1:{server.server_port}", flush=True)

@@ -8,6 +8,7 @@ import re
 import socket
 
 from .core import MockToolbox, MockToolError, ScenarioError, UnexpectedCall, parse_json, validate_request
+from . import __version__
 
 
 MAX_BODY_BYTES = 65_536
@@ -25,7 +26,7 @@ class FixtureServer(ThreadingHTTPServer):
 
 class FixtureHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.0"
-    server_version = "ToolMockbox/0.1"
+    server_version = "ToolMockbox/" + __version__
     sys_version = ""
 
     def setup(self):

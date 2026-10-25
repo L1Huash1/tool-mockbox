@@ -4,13 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tool-mockbox"
-version = "0.1.0"
+version = "0.2.0"
 description = "Scripted local tool fixtures for testing agent calling code"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [{name = "L1Huash1"}]
 keywords = ["agents", "testing", "fixtures", "mock", "tools"]
+
+[project.optional-dependencies]
+mcp = ["mcp>=2.3,<3"]
 
 [project.scripts]
 tool-mockbox = "tool_mockbox.cli:main"
