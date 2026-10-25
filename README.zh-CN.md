@@ -1,12 +1,14 @@
 # tool-mockbox
 
-[English](README.md) · [本地 HTTP 协议](docs/protocol.md)
+[English](README.md) · [本地 HTTP 协议](docs/protocol.md) · [可选 MCP 接入](docs/mcp.md)
 
 **让工具按预设顺序失败或成功，检查 Agent 周边代码能否正确处理。**
 
 例如，你想测试「搜索工具失败两次，第三次成功」时的重试逻辑。这里把三次响应写进 JSON，本地 Python 代码就能调用它，并生成可打开查看的调用报告。
 
-它不需要模型、密钥、付费 API 或第三方运行依赖。当前是 `0.1.0` 早期开发工具。它模拟的是**工具调用的输入与返回值**，不会调用真实工具，也不是 MCP 服务、网络故障模拟器或大模型能力评测。
+它不需要模型、密钥或付费 API。默认 Python / HTTP 模式没有第三方运行依赖。当前是 `0.2.0` 早期开发工具，新增的可选 MCP 接入需要官方 Python SDK v2。它模拟的是**工具调用的输入与返回值**，不会调用真实上游工具，也不是网络故障模拟器或大模型能力评测。
+
+**0.2 新增：**通过标准输入输出让真实 MCP 客户端调用这些虚构工具，并保留结构化返回和取消语义。在源码目录运行 `python -m pip install ".[mcp]"` 后，可试 `python examples/mcp_client.py`。[接入教程](docs/mcp.md)说明了配置、场景限制和实际验证版本。
 
 ## 先运行一个例子
 
@@ -111,7 +113,7 @@ else:
 print(box.report()["summary"])
 ```
 
-异步代码使用 `await box.acall(工具名, 参数)`。`box.catalog()` 返回每个工具已消耗与剩余的步数；`box.report()` 返回独立的 JSON 数据快照。也可自行写入报告：
+asyncio 异步代码使用 `await box.acall(工具名, 参数)`，当前不支持 Trio。`box.catalog()` 返回每个工具已消耗与剩余的步数；`box.report()` 返回独立的 JSON 数据快照。也可自行写入报告：
 
 ```python
 from pathlib import Path
@@ -184,7 +186,7 @@ python -m pip install .
 python -m unittest discover -s tests -v
 ```
 
-CI 在 Windows / Linux、Python 3.10 / 3.13 上运行测试与成功、重试示例。测试涵盖真实本地 HTTP 请求、取消、并发预留、容量边界与命令行行为。成功的 Actions 运行会附 `healthy-report-...` 下载包，只包含虚构示例的 JSON 与 HTML 报告，保留 7 天。在运行页面的 Artifacts 区域下载后，本地打开 `report.html` 即可查看。
+基础 CI 在 Windows / Linux、Python 3.10 / 3.13 上运行测试与成功、重试示例。另有四个集成任务安装 MCP SDK 2.3.0，验证官方客户端 auto / legacy 模式和真实 stdio 子进程。未安装可选依赖时跳过集成测试，基础与接入契约测试仍会运行。测试涵盖真实本地 HTTP 请求、取消、并发预留、容量边界与命令行行为。成功的基础 Actions 任务会附 `healthy-report-...` 下载包，只包含虚构示例的 JSON 与 HTML 报告，保留 7 天。在运行页面的 Artifacts 区域下载后，本地打开 `report.html` 即可查看。
 
 如果需要丰富的 HTTP 路由、代理录制或网络故障模拟，应选专门的服务模拟工具。例如 [WireMock](https://wiremock.org/docs/stateful-behaviour/) 已有状态场景功能。本项目聚焦小型 Python 工具调用模拟与清晰的调用记录，不承诺模型质量、安全性或真实性能。
 

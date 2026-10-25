@@ -1,12 +1,14 @@
 # tool-mockbox
 
-[中文说明](README.zh-CN.md) · [Fixture HTTP protocol](docs/protocol.md)
+[中文说明](README.zh-CN.md) · [Fixture HTTP protocol](docs/protocol.md) · [Optional MCP setup](docs/mcp.md)
 
 **Test the code that calls agent tools with small, repeatable local fixtures.**
 
 Describe a tool's next responses in JSON: two temporary failures, then a success. Your Python retry loop, async cancellation handling, or local HTTP client calls that fixture. Inspect the recorded calls in a self-contained HTML report.
 
-No model, API key, paid service, or third-party runtime dependency is required. This is an early `0.1.0` developer utility. It does not run a real tool, implement MCP, emulate a network outage, or evaluate an LLM.
+No model, API key, or paid service is required. Default Python/HTTP modes have no third-party runtime dependencies. This is an early `0.2.0` developer utility; the new optional MCP adapter uses the official Python SDK v2. It does not run a real upstream tool, emulate a network outage, or evaluate an LLM.
+
+**New in 0.2:** expose compatible fixtures to real MCP clients over stdio, with consistent structured responses and propagated cancellation. Install from source with `python -m pip install ".[mcp]"`, then try `python examples/mcp_client.py`. See [the setup, contract, and tested SDK versions](docs/mcp.md).
 
 ## Try it
 
@@ -120,7 +122,7 @@ report = box.report()
 print(report["summary"])
 ```
 
-Use `await box.acall(name, arguments)` from async code. `box.catalog()` shows each tool's consumed and remaining steps. `box.report()` returns an independent JSON-compatible snapshot. To render a Python run:
+Use `await box.acall(name, arguments)` from asyncio code (Trio is not supported). `box.catalog()` shows each tool's consumed and remaining steps. `box.report()` returns an independent JSON-compatible snapshot. To render a Python run:
 
 ```python
 from pathlib import Path
@@ -191,7 +193,7 @@ python -m pip install .
 python -m unittest discover -s tests -v
 ```
 
-CI runs these tests and the healthy/retry examples on Windows and Linux with Python 3.10 and 3.13. Tests exercise real loopback HTTP requests, async cancellation, concurrent reservations, capacity boundaries, and CLI behavior. Each successful Actions run provides a `healthy-report-...` artifact containing only the synthetic example's JSON and HTML reports, retained for 7 days; download it from the run's Artifacts section and open `report.html` locally.
+CI runs the base tests and healthy/retry examples on Windows and Linux with Python 3.10 and 3.13. A separate four-job matrix installs MCP SDK 2.3.0 and exercises official-client auto/legacy modes and real stdio child processes. Without the extra, integration tests are skipped and the base/adapter contract tests still run. Tests cover real loopback HTTP requests, cancellation, concurrent reservations, capacity boundaries, and CLI behavior. Each successful base Actions job provides a `healthy-report-...` artifact containing only the synthetic example's JSON and HTML reports, retained for 7 days; download it from the run's Artifacts section and open `report.html` locally.
 
 Use an established server mocking tool when you need rich HTTP routing, recording/proxying, or network fault simulation. For example, [WireMock](https://wiremock.org/docs/stateful-behaviour/) already supports stateful scenarios. This project focuses on a small Python tool-call fixture and readable call history. It does not establish model quality, security, or performance guarantees.
 

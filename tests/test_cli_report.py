@@ -9,6 +9,7 @@ import unittest
 from unittest.mock import patch
 
 from tool_mockbox import MockToolbox
+from tool_mockbox import __version__
 from tool_mockbox.cli import main
 from tool_mockbox.report import render_report
 
@@ -132,7 +133,7 @@ class CliTests(unittest.TestCase):
         for options, expected in ((["--version"], 0), (["--help"], 0), (["unknown"], 2)):
             result = subprocess.run([sys.executable, "-m", "tool_mockbox", *options], capture_output=True, timeout=10)
             self.assertEqual(result.returncode, expected)
-        self.assertIn(b"0.1.0", subprocess.run([sys.executable, "-m", "tool_mockbox", "--version"], capture_output=True, timeout=10).stdout)
+        self.assertIn(__version__.encode(), subprocess.run([sys.executable, "-m", "tool_mockbox", "--version"], capture_output=True, timeout=10).stdout)
 
     def test_serve_keyboard_interrupt_closes_server_and_prints_bound_port(self):
         class FakeServer:
