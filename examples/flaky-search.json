@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "tools": [
+    {
+      "name": "search_notes",
+      "description": "Synthetic search responses for testing retry code.",
+      "steps": [
+        {
+          "arguments": {"query": "release"},
+          "status": "error",
+          "error": {"code": "temporary", "message": "Synthetic temporary failure."},
+          "delay_ms": 15
+        },
+        {
+          "arguments": {"query": "release"},
+          "status": "error",
+          "error": {"code": "temporary", "message": "Synthetic temporary failure."},
+          "delay_ms": 15
+        },
+        {
+          "arguments": {"query": "release"},
+          "status": "ok",
+          "result": {"notes": ["Review the release checklist."]},
+          "delay_ms": 10
+        }
+      ]
+    }
+  ]
+}
