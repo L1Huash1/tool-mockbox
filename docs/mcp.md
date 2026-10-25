@@ -22,6 +22,28 @@ The example starts a real child process running the project's `mcp-serve` comman
 
 示例会启动真实的本地子进程，通过 MCP 列出工具并调用三次：两次预设失败后成功。客户端打印示例结果；服务器的标准输出只用于协议消息，不会打印启动横幅。
 
+## Bounded retries / 有界重试
+
+The fixed `mcp_client.py` example checks a known three-response fixture. The separate `mcp_retry_client.py` example implements a client policy: make another call **only** after a well-formed tool error (`is_error` is true, nonblank code/message strings) whose code is exactly `temporary`.
+
+```sh
+python examples/mcp_retry_client.py --max-attempts 3
+python examples/mcp_retry_client.py --mode legacy --max-attempts 3
+python examples/mcp_retry_client.py --max-attempts 2
+```
+
+The default fixture succeeds on the third attempt, with exit 0. A budget of 2 ends after the two temporary errors, exits 1, and reports `stop_reason: "max_attempts"`. The argument must be an integer from 1 to 10. The JSON summary includes `attempts`, every attempted outcome in `events`, and a human-readable explanation. Earlier failures stay in that history after recovery.
+
+固定示例用于检查已知的三次响应；新示例才由客户端决定是否再试。默认第三次成功，退出 0；上限设为 2 时，两次失败后停止，退出 1，并明确给出 `max_attempts` 原因。上限必须是 1–10 的整数，输出 JSON 保留每次调用结果及失败记录。
+
+Protocol errors (including parameter mismatch or sequence exhaustion), other tool error codes, malformed responses, and disagreeing success wrappers are **never retried**. The success check treats booleans separately from numbers. `--scenario PATH` selects a local fixture file for the same `search_notes` call with `{"query":"release"}`; it does not select an executable or run fixture text as code. The client launches only the current Python interpreter and this package's stdio command.
+
+协议错误、参数不匹配、序列用尽、非临时错误、格式异常及成功返回不一致都会直接停止，不会重试。`--scenario 路径` 可换成自己的虚构场景，但调用固定为 `search_notes` 和 `{"query":"release"}`；它仅选择服务器读取的场景文件，不选择要执行的程序。
+
+The example has a small immediate retry loop, without backoff or a reset operation. It uses `--no-wait` on synthetic fixtures; it is not a recommended retry policy for arbitrary production tools, and it does not evaluate an LLM. Exit 2 denotes invalid arguments, missing optional dependencies, or client setup failure.
+
+这个例子只有小型的立即重试循环，没有退避等待或重置功能。它对虚构场景跳过等待，不能据此推断真实服务的可靠性，也不代表任意生产工具都适合自动重试。参数、依赖或客户端启动失败时退出 2。
+
 ## Configure a stdio client / 配置客户端
 
 Use your MCP client's documented stdio server settings. The equivalent executable and arguments are:

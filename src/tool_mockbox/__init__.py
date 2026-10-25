@@ -2,5 +2,5 @@
 
 from .core import MockToolbox, MockToolError, ScenarioError, UnexpectedCall, load_scenario
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __all__ = ["MockToolbox", "MockToolError", "ScenarioError", "UnexpectedCall", "load_scenario", "__version__"]

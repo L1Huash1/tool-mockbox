@@ -6,9 +6,11 @@
 
 Describe a tool's next responses in JSON: two temporary failures, then a success. Your Python retry loop, async cancellation handling, or local HTTP client calls that fixture. Inspect the recorded calls in a self-contained HTML report.
 
-No model, API key, or paid service is required. Default Python/HTTP modes have no third-party runtime dependencies. This is an early `0.2.0` developer utility; the new optional MCP adapter uses the official Python SDK v2. It does not run a real upstream tool, emulate a network outage, or evaluate an LLM.
+No model, API key, or paid service is required. Default Python/HTTP modes have no third-party runtime dependencies. This is an early `0.2.1` developer utility; the optional MCP adapter uses the official Python SDK v2. It does not run a real upstream tool, emulate a network outage, or evaluate an LLM.
 
 **New in 0.2:** expose compatible fixtures to real MCP clients over stdio, with consistent structured responses and propagated cancellation. Install from source with `python -m pip install ".[mcp]"`, then try `python examples/mcp_client.py`. See [the setup, contract, and tested SDK versions](docs/mcp.md).
+
+**0.2.1 retry example:** `python examples/mcp_retry_client.py --max-attempts 3` lets the client decide whether to retry: only well-formed tool errors with code `temporary` qualify. It returns a JSON attempt history, retaining failures before recovery. Protocol errors and permanent tool errors stop immediately; `--max-attempts 2` exits 1 with an exhausted-budget explanation. This differs from the fixed three-call protocol check and the CLI's request-list replay. See [bounded MCP retries](docs/mcp.md#bounded-retries--有界重试).
 
 ## Try it
 
